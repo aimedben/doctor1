@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://dr-ifri.vercel.app/sitemap.xml
