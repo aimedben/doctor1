@@ -10,10 +10,16 @@ const SUPABASE_ANON_KEY =
 
 const WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || `${SUPABASE_URL}/functions/v1/assistant`
 
+const SESSION_OPEN_KEY = 'dr-ifri-chat-opened'
+
 declare global {
   interface Window {
     __n8nChatInjected?: boolean
   }
+}
+
+const openChatWidget = () => {
+  document.querySelector<HTMLElement>('.chat-window-toggle')?.click()
 }
 
 const N8nChat = () => {
@@ -26,8 +32,10 @@ const N8nChat = () => {
     link.href = CHAT_STYLE_URL
     document.head.appendChild(link)
 
-    const bundleUrl = CHAT_BUNDLE_URL
-    import(/* @vite-ignore */ bundleUrl)
+    let pill: HTMLButtonElement | null = null
+    let autoOpenTimer: number | undefined
+
+    import(/* @vite-ignore */ CHAT_BUNDLE_URL)
       .then(({ createChat }: { createChat: (config: unknown) => void }) => {
         if (!window.__n8nChatInjected) return
         createChat({
@@ -52,10 +60,31 @@ const N8nChat = () => {
             },
           },
         })
+
+        pill = document.createElement('button')
+        pill.type = 'button'
+        pill.id = 'dr-ifri-chat-pill'
+        pill.setAttribute('aria-label', 'Ouvrir l’assistant IA')
+        pill.textContent = 'Assistant IA'
+        pill.addEventListener('click', openChatWidget)
+        document.body.appendChild(pill)
+
+        if (!sessionStorage.getItem(SESSION_OPEN_KEY)) {
+          autoOpenTimer = window.setTimeout(() => {
+            openChatWidget()
+            sessionStorage.setItem(SESSION_OPEN_KEY, '1')
+          }, 4000)
+        }
       })
       .catch(() => {
         window.__n8nChatInjected = false
       })
+
+    return () => {
+      window.__n8nChatInjected = false
+      if (autoOpenTimer) window.clearTimeout(autoOpenTimer)
+      pill?.remove()
+    }
   }, [])
 
   return null
