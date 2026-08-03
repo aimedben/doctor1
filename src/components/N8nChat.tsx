@@ -3,7 +3,12 @@ import { useEffect } from 'react'
 const CHAT_STYLE_URL = 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css'
 const CHAT_BUNDLE_URL = 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js'
 
-const WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://aimed15.app.n8n.cloud/webhook/2c7d7536-4df7-4ce2-92ed-50d21f200944/webhook'
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://cgorbzmwsualnhqhftnv.supabase.co'
+const SUPABASE_ANON_KEY =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNnb3Jiem13c3VhbG5ocWhmdG52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5ODAzNzQsImV4cCI6MjEwMDU1NjM3NH0.ZDBOt-ymdsyB8GSxHgemSrCm89FN-p1sesSqtMvReEM'
+
+const WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || `${SUPABASE_URL}/functions/v1/assistant`
 
 declare global {
   interface Window {
@@ -29,6 +34,10 @@ const N8nChat = () => {
           webhookUrl: WEBHOOK_URL,
           webhookConfig: {
             method: 'POST',
+            headers: {
+              apikey: SUPABASE_ANON_KEY,
+              Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+            },
           },
           mode: 'window',
           showWelcomeScreen: true,
